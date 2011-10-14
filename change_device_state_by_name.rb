@@ -52,13 +52,13 @@ end
 
 opts = parse_options ARGV
 error opts if ARGV.empty? && OPTIONS[:name].nil?
-OPTIONS[:name] = ARGV.first
+OPTIONS[:name] = ARGV.first unless OPTIONS[:mode] == :list
 device_list = %x[xinput list]
 matches = device_list.scan /^[\s\W]*((?:\S+\s)*?\S*#{OPTIONS[:name]}\S*(?:\s\S+)*)\s+id=(\d+)/i
 # Check for match
 error "Cannot find a matching device for string #{OPTIONS[:name]}!" unless matches.count > 0
-# Check for multiple matches
-if matches.count > 1
+# Check for multiple matches (or just list the devices)
+if matches.count > 1 || OPTIONS[:mode] == :list
   match_list = matches.map { |x| "\t#{x.first}" }.join "\n"
   success "Device list:\n#{match_list}" if OPTIONS[:mode] == :list
   error "Ambiguous device name.  Possible matches are:\n#{match_list}"
